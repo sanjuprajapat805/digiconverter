@@ -1,0 +1,39 @@
+# Use official Python image
+FROM python:3.10-slim
+
+# Set the working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libpq-dev gcc python3-dev build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy only the requirements folder first to improve caching
+COPY requirements /app/requirements
+
+# Install dependencies from production requirements
+RUN pip install --no-cache-dir -r requirements/production.txt
+
+# Now copy the entire project (after installing dependencies)
+COPY . .
+
+# Copy environment file (Make sure .dockerignore is not blocking this)
+COPY .env.production /app/.env
+
+# Set environment variables
+ENV PYTHONPATH=/app
+ENV DJANGO_SETTINGS_MODULE=one_click_convert.settings.production
+ENV PYTHONUNBUFFERED=1
+
+# Ensure environment variables are available
+RUN export $(cat /app/.env | xargs)
+
+# Collect static files for production
+RUN python manage.py collectstatic --noinput
+
+# Expose the port for Gunicorn
+EXPOSE 8000
+
+# Run Gunicorn with multiple workers
+CMD ["gunicorn", "one_click_convert.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4"]

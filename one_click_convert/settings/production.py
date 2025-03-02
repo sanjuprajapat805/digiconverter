@@ -5,7 +5,7 @@ from .base import BASE_DIR
 import dj_database_url
 
 # Load production environment variables from file
-prod_env_file = path.join(BASE_DIR, ".envs", ".env.production")
+prod_env_file = path.join(BASE_DIR, ".env.production")
 
 if path.isfile(prod_env_file):
     from dotenv import load_dotenv
