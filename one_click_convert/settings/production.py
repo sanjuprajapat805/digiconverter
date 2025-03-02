@@ -38,10 +38,10 @@ SECURE_CONTENT_TYPE_NOSNIFF = getenv("SECURE_CONTENT_TYPE_NOSNIFF", "True").lowe
 SECURE_CONTENT_TYPE_NOSNIFF = getenv("SECURE_CONTENT_TYPE_NOSNIFF")
 
 # Database configuration using dj-database-url
-DATABASE_URL = getenv("DATABASE_URL", "")
-DATABASES = {
-    "default": dj_database_url.config(default=DATABASE_URL) if DATABASE_URL else {}
-}
+# DATABASE_URL = getenv("DATABASE_URL", "")
+# DATABASES = {
+#     "default": dj_database_url.config(default=DATABASE_URL) if DATABASE_URL else {}
+# }
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
