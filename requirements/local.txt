@@ -1,0 +1,6 @@
+-r base.txt
+
+watchfiles==1.0.4
+black
+django-debug-toolbar
+pytest-django

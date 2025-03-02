@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+{% load static %}
+
+{% block content %}
+<div class="container converter-container mt-5">
+    <div class="card bg-light">
+        <div class="card-body">
+            <h3 class="text-center fst-italic" id="form-title">Transform Files with Ease</h3>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {% comment %} {% bootstrap_form form %} {% endcomment %}
+                <div id="wrapper-id_conversion_type" class="mb-3">
+                    {% bootstrap_field form.conversion_type %}
+                </div>
+                <div id="wrapper-id_file" class="mb-3">
+                    {% bootstrap_field form.file %}
+                </div>
+                <div id="wrapper-id_text_input" class="mb-3">
+                    {% bootstrap_field form.text_input %}
+                </div>
+                <button type="submit" class="btn text-white" style="background-color:#fb2c2c" id="submitBtn">
+                    <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    Convert and Download
+                </button>
+            </form>
+        </div>
+    </div>
+    {% include "nav_content/page_content.html" %}
+    <!-- Optional: Remove this toast container if already in base.html -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Notification</strong>
+                <small>Just now</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                Conversion successful!
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% bootstrap_javascript %}
+<script>
+    // Show loading spinner on form submit
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('wrapper-id_file').style.display = 'none';
+        document.getElementById('wrapper-id_text_input').style.display = 'none';
+    })
+    document.getElementById('id_conversion_type').addEventListener('change', function() {
+
+        const data = ['txt_to_pdf','md_to_html','html_to_pdf','yaml_to_json','json_to_yaml','base64_to_img','url_encode','temp_convert','currency_convert','length_convert']
+        var selectedValue = this.value;
+        var selectedText = "Convert " + this.options[this.selectedIndex].text;
+        const subArr = data.some(str => str.includes(selectedValue));
+        // Perform action based on selectedValue
+        if(subArr === true){
+          document.getElementById('form-title').innerText = selectedText
+          console.log(selectedValue," value present in list");
+          document.getElementById('wrapper-id_text_input').style.display = "block";
+          document.getElementById('wrapper-id_file').style.display = "none";
+        } else if(selectedValue === ''){
+          // do something for Action 2
+          document.getElementById('form-title').innerText = 'Transform Files with Ease'
+          console.log(selectedValue," not present");
+          document.getElementById('wrapper-id_text_input').style.display = "none";
+          document.getElementById('wrapper-id_file').style.display = "none";
+        }else{
+            document.getElementById('form-title').innerText = selectedText
+            document.getElementById('wrapper-id_text_input').style.display = "none";
+            document.getElementById('wrapper-id_file').style.display = "block";
+        }
+      });
+
+    document.querySelector('form').addEventListener('submit', function() {
+        document.getElementById('spinner').classList.remove('d-none');
+        document.getElementById('submitBtn').setAttribute('disabled', 'disabled');
+    });
+
+    // Debug: Log conversionSuccess value to console
+    var conversionSuccess = {{ conversion_success|default:"false" }};
+    console.log("Conversion Success:", conversionSuccess);
+
+    // Show toast notification if conversion_success is true
+    // Check both string and boolean representations:
+    if(conversionSuccess === true || conversionSuccess === "true") {
+        var toastEl = document.getElementById('liveToast');
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+    }
+
+
+    document.addEventListener("DOMContentLoaded", function() {
+        var conversionSuccess = "{{ conversion_success|default:"0" }}";  // '1' if successful, '0' if not
+        console.log("Conversion Success:", conversionSuccess);
+        if (conversionSuccess === "1") {
+            var toastEl = document.getElementById('liveToast');
+            var toast = new bootstrap.Toast(toastEl);
+            toast.show();
+        }
+    });
+</script>
+{% endblock %}
